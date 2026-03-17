@@ -1,3 +1,6 @@
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
 // Abstract base class
 abstract class Human {
     private String fullName;
@@ -16,32 +19,28 @@ abstract class Human {
         return age;
     }
 
-    public abstract void showInfo(); // must be overridden
+    public abstract void showInfo();
 }
 
-// Second abstract class
 abstract class Employee extends Human {
     protected double basicPay;
 
     public Employee(String fullName, int age, double basicPay) {
-        super(fullName, age);   // calling parent constructor
+        super(fullName, age);
         this.basicPay = basicPay;
     }
 
-    public abstract double computePay(); // must be overridden
+    public abstract double computePay();
 }
 
-// Interface 1
 interface Payable {
     double calculatePayment();
 }
 
-// Interface 2
 interface Schedulable {
     void schedule();
 }
 
-// Concrete class 1
 class InPatient extends Human {
     private String disease;
     private int roomNo;
@@ -60,7 +59,6 @@ class InPatient extends Human {
     }
 }
 
-// Concrete class 2
 class Surgeon extends Employee {
     private String field;
 
@@ -77,11 +75,10 @@ class Surgeon extends Employee {
 
     @Override
     public double computePay() {
-        return basicPay + 20000;  // bonus added
+        return basicPay + 20000;
     }
 }
 
-// Concrete class 3
 class Invoice implements Payable {
     private double consultationFee;
     private double medicineCharge;
@@ -97,7 +94,6 @@ class Invoice implements Payable {
     }
 }
 
-// Concrete class 4
 class Visit implements Schedulable {
     private String date;
 
@@ -111,21 +107,76 @@ class Visit implements Schedulable {
     }
 }
 
-
 public class HospitalSystem {
     public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
 
-        InPatient patient1 = new InPatient("Omar", 22, "Malaria", 12);
-        Surgeon doctor1 = new Surgeon("Dr Aisha", 45, 90000, "Neurology");
-        Invoice bill1 = new Invoice(1500, 2500);
-        Visit visit1 = new Visit("25 Feb 2026");
+        try {
+            System.out.println("=== Hospital Management System ===");
 
-        patient1.showInfo();
-        doctor1.showInfo();
+            // -------------------- INPATIENT --------------------
+            System.out.print("Enter patient full name: ");
+            String pName = input.nextLine();
 
-        System.out.println("Doctor Total Pay: " + doctor1.computePay());
-        System.out.println("Total Bill: " + bill1.calculatePayment());
+            System.out.print("Enter patient age: ");
+            int pAge = input.nextInt();
+            input.nextLine(); // clear leftover newline
 
-        visit1.schedule();
+            System.out.print("Enter disease: ");
+            String disease = input.nextLine();
+
+            System.out.print("Enter room number: ");
+            int roomNo = input.nextInt();
+            input.nextLine();
+
+            InPatient patient1 = new InPatient(pName, pAge, disease, roomNo);
+
+            // -------------------- SURGEON --------------------
+            System.out.print("Enter doctor full name: ");
+            String dName = input.nextLine();
+
+            System.out.print("Enter doctor age: ");
+            int dAge = input.nextInt();
+
+            System.out.print("Enter basic pay: ");
+            double dPay = input.nextDouble();
+            input.nextLine();
+
+            System.out.print("Enter specialization: ");
+            String field = input.nextLine();
+
+            Surgeon doctor1 = new Surgeon(dName, dAge, dPay, field);
+
+            // -------------------- BILL / INVOICE --------------------
+            System.out.print("Enter consultation fee: ");
+            double fee = input.nextDouble();
+
+            System.out.print("Enter medicine charge: ");
+            double med = input.nextDouble();
+            input.nextLine();
+
+            Invoice bill1 = new Invoice(fee, med);
+
+            // -------------------- VISIT --------------------
+            System.out.print("Enter visit date (e.g., 25 Feb 2026): ");
+            String date = input.nextLine();
+            Visit visit1 = new Visit(date);
+
+            // -------------------- OUTPUT --------------------
+            System.out.println("\n==== OUTPUT ====");
+            patient1.showInfo();
+            doctor1.showInfo();
+            System.out.println("Doctor Total Pay: " + doctor1.computePay());
+            System.out.println("Total Bill: " + bill1.calculatePayment());
+            visit1.schedule();
+
+        } catch (InputMismatchException e) {
+            System.out.println("Error: Invalid input type!");
+        } catch (Exception e) {
+            System.out.println("Unexpected error: " + e.getMessage());
+        } finally {
+            System.out.println("Program execution complete.");
+            input.close();
+        }
     }
 }
