@@ -121,7 +121,7 @@ class Visit implements Schedulable {
 }
 
 // ===================== MAIN SYSTEM =====================
-public class HospitalSystem {
+public class MainHospitalSystem {
 
     // COLLECTIONS
     static ArrayList<InPatient> patientList = new ArrayList<>();
@@ -232,3 +232,5 @@ public class HospitalSystem {
 
     
 }
+
+
