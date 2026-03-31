@@ -1,0 +1,2 @@
+PATIENT:Omar Musa,19,Malaria,13
+DOCTOR:Mohamed,27,200000.0,Orthopology 
