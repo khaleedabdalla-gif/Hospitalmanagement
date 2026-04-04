@@ -56,6 +56,7 @@ class InPatient extends Human {
     @Override
     public void showInfo() {
         System.out.println("Patient: " + getFullName() +
+                ", Age: " + getAge() +
                 ", Disease: " + disease +
                 ", Room: " + roomNo);
     }
@@ -77,7 +78,9 @@ class Surgeon extends Employee {
     @Override
     public void showInfo() {
         System.out.println("Doctor: " + getFullName() +
-                ", Specialization: " + field);
+                ", Age: " + getAge() +
+                ", Specialization: " + field +
+                ", Pay: " + computePay());
     }
 
     @Override
@@ -90,44 +93,42 @@ class Surgeon extends Employee {
     }
 }
 
-// ===================== INVOICE =====================
-class Invoice implements Payable {
-    private double consultationFee;
-    private double medicineCharge;
-
-    public Invoice(double consultationFee, double medicineCharge) {
-        this.consultationFee = consultationFee;
-        this.medicineCharge = medicineCharge;
-    }
-
-    @Override
-    public double calculatePayment() {
-        return consultationFee + medicineCharge;
-    }
-}
-
-// ===================== VISIT =====================
-class Visit implements Schedulable {
-    private String date;
-
-    public Visit(String date) {
-        this.date = date;
-    }
-
-    @Override
-    public void schedule() {
-        System.out.println("Visit scheduled on: " + date);
-    }
-}
-
 // ===================== MAIN SYSTEM =====================
 public class MainHospitalSystem {
 
-    // COLLECTIONS
     static ArrayList<InPatient> patientList = new ArrayList<>();
     static ArrayList<Surgeon> doctorList = new ArrayList<>();
 
-    // SAVE TO FILE
+    // -------- SAFE INPUT (EXCEPTION HANDLING) --------
+    public static int safeInt(Scanner input, String msg) {
+        while (true) {
+            try {
+                System.out.print(msg);
+                int val = input.nextInt();
+                input.nextLine();
+                return val;
+            } catch (InputMismatchException e) {
+                System.out.println("❌ Invalid number. Try again.");
+                input.nextLine();
+            }
+        }
+    }
+
+    public static double safeDouble(Scanner input, String msg) {
+        while (true) {
+            try {
+                System.out.print(msg);
+                double val = input.nextDouble();
+                input.nextLine();
+                return val;
+            } catch (InputMismatchException e) {
+                System.out.println("❌ Invalid amount. Try again.");
+                input.nextLine();
+            }
+        }
+    }
+
+    // -------- SAVE TO FILE --------
     public static void saveToFile() {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter("hospital_data.txt"));
@@ -143,94 +144,116 @@ public class MainHospitalSystem {
             }
 
             bw.close();
-            System.out.println("Data saved successfully!");
+            System.out.println("✅ Data saved!");
 
         } catch (Exception e) {
-            System.out.println("Error saving file: " + e.getMessage());
+            System.out.println("❌ Error saving file: " + e.getMessage());
+        } finally {
+            System.out.println("✅ Save operation completed.\n");
         }
     }
 
-    // LOAD FROM FILE
+    // -------- LOAD FROM FILE --------
     public static void loadFromFile() {
         try {
             BufferedReader br = new BufferedReader(new FileReader("hospital_data.txt"));
-            String line;
 
+            String line;
             while ((line = br.readLine()) != null) {
                 if (line.startsWith("PATIENT:")) {
                     String[] d = line.substring(8).split(",");
-                    patientList.add(new InPatient(d[0], Integer.parseInt(d[1]), d[2], Integer.parseInt(d[3])));
-                }
-                else if (line.startsWith("DOCTOR:")) {
+                    patientList.add(new InPatient(d[0],
+                            Integer.parseInt(d[1]), d[2], Integer.parseInt(d[3])));
+                } else if (line.startsWith("DOCTOR:")) {
                     String[] d = line.substring(7).split(",");
-                    doctorList.add(new Surgeon(d[0], Integer.parseInt(d[1]), Double.parseDouble(d[2]), d[3]));
+                    doctorList.add(new Surgeon(d[0],
+                            Integer.parseInt(d[1]), Double.parseDouble(d[2]), d[3]));
                 }
             }
             br.close();
-            System.out.println("Data loaded successfully!");
+            System.out.println("✅ Data loaded!");
 
         } catch (Exception e) {
-            System.out.println("Error loading file: " + e.getMessage());
+            System.out.println("❌ Error loading file: " + e.getMessage());
+        } finally {
+            System.out.println("✅ Load operation completed.\n");
         }
     }
 
-    // ===================== MAIN =====================
+    // -------- MENU SYSTEM --------
     public static void main(String[] args) {
 
         Scanner input = new Scanner(System.in);
+        int choice;
 
-        System.out.println("=== Hospital Management System ===");
+        do {
+            System.out.println("===== Hospital Menu =====");
+            System.out.println("1. Add In-Patient");
+            System.out.println("2. Add Surgeon");
+            System.out.println("3. Display All");
+            System.out.println("4. Save to File");
+            System.out.println("5. Load from File");
+            System.out.println("6. Exit");
 
-        // ---- Enter one patient ----
-        System.out.print("Enter patient name: ");
-        String pName = input.nextLine();
+            choice = safeInt(input, "Enter choice: ");
 
-        System.out.print("Enter age: ");
-        int pAge = input.nextInt();
-        input.nextLine();
+            switch (choice) {
 
-        System.out.print("Enter disease: ");
-        String disease = input.nextLine();
+                case 1:
+                    System.out.print("Enter patient name: ");
+                    String name = input.nextLine();
 
-        System.out.print("Enter room number: ");
-        int room = input.nextInt();
-        input.nextLine();
+                    int age = safeInt(input, "Enter age: ");
+                    System.out.print("Enter disease: ");
+                    String disease = input.nextLine();
+                    int room = safeInt(input, "Enter room number: ");
 
-        InPatient p1 = new InPatient(pName, pAge, disease, room);
-        patientList.add(p1);
+                    patientList.add(new InPatient(name, age, disease, room));
+                    System.out.println("✅ Patient added.\n");
+                    break;
 
-        // ---- Enter a Surgeon ----
-        System.out.print("Enter doctor name: ");
-        String dName = input.nextLine();
+                case 2:
+                    System.out.print("Enter doctor name: ");
+                    String dName = input.nextLine();
 
-        System.out.print("Enter doctor age: ");
-        int dAge = input.nextInt();
+                    int dAge = safeInt(input, "Enter doctor age: ");
+                    double pay = safeDouble(input, "Enter basic pay: ");
+                    System.out.print("Enter specialization: ");
+                    String field = input.nextLine();
 
-        System.out.print("Enter basic pay: ");
-        double pay = input.nextDouble();
-        input.nextLine();
+                    doctorList.add(new Surgeon(dName, dAge, pay, field));
+                    System.out.println("✅ Surgeon added.\n");
+                    break;
 
-        System.out.print("Enter specialization: ");
-        String field = input.nextLine();
+                case 3:
+                    System.out.println("===== PATIENTS =====");
+                    for (InPatient p : patientList) p.showInfo();
 
-        Surgeon d1 = new Surgeon(dName, dAge, pay, field);
-        doctorList.add(d1);
+                    System.out.println("\n===== DOCTORS =====");
+                    for (Surgeon d : doctorList) d.showInfo();
+                    System.out.println();
+                    break;
 
-        // ---- SAVE TO FILE ----
-        saveToFile();
+                case 4:
+                    saveToFile();
+                    break;
 
-        // ---- LOAD FROM FILE ----
-        loadFromFile();
+                case 5:
+                    loadFromFile();
+                    break;
 
-        // ---- DISPLAY EVERYTHING ----
-        System.out.println("\n=== RECORDS FROM COLLECTION ===");
-        for (InPatient pp : patientList) pp.showInfo();
-        for (Surgeon dd : doctorList) dd.showInfo();
+                case 6:
+                    System.out.println("✅ Exiting...");
+                    break;
 
-    input.close();
-}
+                default:
+                    System.out.println("❌ Invalid choice.");
+            }
 
-    
+        } while (choice != 6);
+
+        input.close();
+    }
 }
 
 
