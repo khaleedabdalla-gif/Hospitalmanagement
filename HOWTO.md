@@ -1,5 +1,5 @@
 # Hospital Management System
-### Class Activity 3 & 4 – Object-Oriented Programming, Collections & Exception Handling
+
 
 ---
 
